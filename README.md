@@ -37,7 +37,7 @@ Logging trace in logs/logfile-10-06-24-03-02-2023.pml ...
 ### SCAWATCH performs the following:
 1.	Automatically traces the system-level software execution (e.g., library/API calls) of a running software process.
 2.	Automatically manages the collection and storage of the traces (or logs) based on user-specification. Traces are collected in batches of user-specified sizes and zipped.
-3.	Automatically analyzes the traces for anomalies (e.g., injected attacks). Anomaly detection is based on statistical analysis of the frequency and timing behavior of SCADA “physical-targeted” executions (Not yet integrated in this code release).
+3.	Automatically analyzes the traces for anomalies (e.g., injected attacks). Anomaly detection is based on statistical analysis of the frequency and timing behavior of SCADA “physical-targeted” executions (**Not yet integrated in this code release**).
 
 A Windows VM with a proof-of-concept demonstration is provided (via special request). It runs an open-source SCADA suite, called ScadaBR.
 
