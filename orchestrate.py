@@ -54,6 +54,7 @@ with open(new_config_file_name, "wb") as f:
 
 CONFIG_FILE = os.getcwd() + "\\" + new_config_file_name
 print("Starting Tracing ...")
+print()
 
 
 """""
