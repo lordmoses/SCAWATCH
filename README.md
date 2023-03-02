@@ -1,6 +1,6 @@
 # SCAWATCH
 
-## Automated Dynamic Analysis of SCADA Phyiscal-Targeted Software Execution
+## Automated Dynamic Analysis of SCADA Software Execution
 
 ### Host Requrements
 
