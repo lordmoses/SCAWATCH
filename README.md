@@ -13,8 +13,24 @@ SCAWATCH is **python-based** and executed in **Powershell**. Powershell must be 
 2. `cd SCAWATCH`
 3. `pip install -r requirements.txt`
 4. Edit config.json (to suit your Windows environment, see instructions below)
-5. `python orchestrate.py`
+5. `python3 orchestrate.py`
 6. To end things, press CTRL -C
+
+
+```
+SCAWATCH v1.1
+==User Specification==
+Procmon Location: C:/Users/username/Desktop/ProcessMonitor/Procmon.exe
+SCADA software process investigated: ScadaBR.exe
+Log batch size in MB: 50
+==End==
+Making procmon configuration and filters ...
+Starting Tracing ...
+
+Procmon instance  1  Date-time: 10-08-35-03-02-2023
+```
+
+
 
 
 ### SCAWATCH performs the following:
