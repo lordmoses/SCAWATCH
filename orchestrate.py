@@ -27,12 +27,13 @@ scada_process_name = data["scada_process"]    #default procmon location
 
 print()
 print("SCAWATCH v1.1")
-print("==User Environment==")
-print("Procmon Location: ", procmon_location)
+print("==User Specification==")
+print("Procmon Location:", procmon_location)
 print("SCADA software process investigated:", scada_process_name)
-print("Approximate trace log sizes:", SIZE_LIMIT)
+print("Log batch size in MB:", SIZE_LIMIT)
+print("==End==")
 
-print("making procmon configuration and filters ...")
+print("Making procmon configuration and filters ...")
 
 #Lets make the procmon filter/config called "added_config.pmc"
 blank_config_file_name = "fresh_config.pmc" #located in the same folder as the script
@@ -52,7 +53,7 @@ with open(new_config_file_name, "wb") as f:
     dump_configuration(blank_config, f)      #Saving the filter/config to a file
 
 CONFIG_FILE = os.getcwd() + "\\" + new_config_file_name
-print("Done.")
+print("Starting Tracing ...")
 
 
 """""
@@ -254,19 +255,21 @@ def run(size_limit, check_interval):
 
     global user_terminate_action
     procmon_instantiation_counter = 1
-    print("Procmon instantiation counter:", procmon_instantiation_counter, " Date-time:", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
+    print("Procmon instance ", procmon_instantiation_counter, " Date-time:", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
     #Start the first/current tracing
     current_pml_log, current_csv_log, current_zip_name = setup_and_trace()
+    print("Logging trace in ", current_pml_log, "...")
     
     while True:
         try:
-            print("Watching for trace log to reach size_limit. Date-Time: ", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")), "pml_log", current_pml_log)    
+            debug_output("Watch and Stop... Date-Time: ", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")), "pml_log", current_pml_log)    
             completed_pml_log, completed_csv_log, completed_zip_name = watch_and_stop(size_limit, check_interval, current_pml_log, current_csv_log, current_zip_name)
         
             if user_terminate_action == 0: #user has not asked to stop e.g., via CTRL C
                 ##Starting the next tracing. We want to start tracing the next instance immediately after the first/current one finishes, i.e. before we start zipping its logs, to minimize missed logs/events
-                print("Procmon instantiation count:", procmon_instantiation_counter, " Date-time: ", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
+                print("Procmon instance ", procmon_instantiation_counter, " Date-time: ", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
                 current_pml_log, current_csv_log, current_zip_name = setup_and_trace()
+                print("Logging trace in ", current_pml_log, "...")
                 procmon_instantiation_counter += 1
                 
             ## Make sure Procmon is done using the completed pml log
