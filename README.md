@@ -9,7 +9,7 @@ This tool, SCAWATCH, uses a Windows utility called **Process Monitor (Procmon)**
 SCAWATCH is **python-based** and executed in **Powershell**. Powershell must be run as **administrator** (to allow Procmon to work). Tested on Windows 7.
 
 ### Basic Steps:
-1. `git clone https://github.com/lordmoses/SCADA-Dynamic-Analysis.git`
+1. `git clone https://github.com/lordmoses/SCAWATCH.git`
 2. `cd SCADA-Dynamic-Analysis`
 3. `pip install -r requirements.txt`
 4. Edit config.json (to suit your Windows environment, see instructions below)
