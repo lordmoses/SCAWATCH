@@ -1,0 +1,7 @@
+
+{
+   "size_limit" : 50,                
+    "check_interval" : 5,           
+    "procmon_location" : "C:/Users/tingwei/Desktop/ProcessMonitor/Procmon.exe",
+    "scada_process" : "ScadaBR.exe"     
+}
