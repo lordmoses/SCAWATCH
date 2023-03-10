@@ -4,6 +4,7 @@
     "check_interval" : 5,           
     "procmon_location" : "C:/Users/AVATAR/Desktop/ProcessMonitor/Procmon.exe",
     "scada_process" : "ScadaBR.exe",
+    "ENABLE_LOCAL_STORAGE": 1,
     "SEND_LOGS_TO_REMOTE_SERVER": 1,
     "remote_server_machine" : "AVATAR.gatech.edu",
     "remote_server_folder" : "/home/AVATAR",

@@ -21,9 +21,15 @@ with open('config.json') as config_file:
 #USER CONFIGURATIONS : 
 SIZE_LIMIT = data["size_limit"]                 #default storage size at which we wish to stop writing the log
 CHECK_INTERVAL = data["check_interval"]          #default time interval to sleep between size checks
-#default_config_file = data["procmon_config_file"]    #Default PROCMON configuration file
 procmon_location = data["procmon_location"]    #default procmon location
-scada_process_name = data["scada_process"]    #default procmon location
+scada_process_name = data["scada_process"]   
+enable_local_storage = data["ENABLE_LOCAL_STORAGE"]
+send_logs_to_remote_server = data["SEND_LOGS_TO_REMOTE_SERVER"]    #default procmon location
+remote_server_machine =  data["remote_server_machine"]
+remote_server_folder =  data["remote_server_folder"]
+ssh_client_identity_file =  data["ssh_client_identity_file"]
+
+
 
 print()
 print("SCAWATCH v1.1")
@@ -95,21 +101,25 @@ def ensure_file_is_longer_being_used(file_paths, max_wait_time):
     #lets grab the processes we are interested in (namely the procmon we ran)
     processes_of_interest = []
     for proc in psutil.process_iter(['name', 'cmdline']):
-        if "procmon" in str(proc.info['name']).lower() and "openlog" in str(proc.info['cmdline']).lower():
+        if ".zip" in file_paths[0][4:]: #the scp that is sending the file to remote location
+            if "scp" in str(proc.info['name']).lower():
+                processes_of_interest.append(proc)
+            break #because its just one scp process name
+        elif "procmon" in str(proc.info['name']).lower() and "openlog" in str(proc.info['cmdline']).lower():
             processes_of_interest.append(proc)
      
     if len(processes_of_interest) == 0:
         debug_output("No process was found")
         return
     
-
+    proc_name = str(processes_of_interest[0].name())
     start_time = time.time()
     #We observe that procmon may not yet have opened the pml/csv files for processing, so Lets get a minimum time to allow this to happen, i.e., so we don't leave too quickly and assume it is done opening/closing the files 
     minimum_time_to_access_file = 5 # seconds
     file_has_been_determined_to_be_accessed  = False
     while True:
         if (time.time() - start_time) > max_wait_time:
-            print("***WARNING. UNRESPONSIVE Procmon process. Found during checking CSV Conversion. Force-Terminating. CSV Logs may be corrupted", file_paths)
+            print("***WARNING. UNRESPONSIVE", proc_name, "process when checking if their open files are still in use by them after", max_wait_time," seconds. The files may be corrupted ", file_paths)
             force_kill(processes_of_interest,"2b")
             return False
         else:
@@ -120,7 +130,10 @@ def ensure_file_is_longer_being_used(file_paths, max_wait_time):
                     # if pml_log in str([str(proc.open_files()) for proc in tracing_procs])
                     open_files += str(proc.open_files())
                 except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    debug_output("exception hit 2c")            
+                    debug_output("exception hit 2c")    
+            #(change later) I will repeat the file_paths list if its just one file so the next line after that can still work
+            if len(file_paths) == 0:
+                file_paths.append(file_paths[0])
             if  file_paths[0].split("\\")[-1] in open_files or file_paths[1].split("\\")[-1] in open_files:
                     file_has_been_determined_to_be_accessed = True
                     time.sleep(1)
@@ -129,7 +142,7 @@ def ensure_file_is_longer_being_used(file_paths, max_wait_time):
                 if (not file_has_been_determined_to_be_accessed) and (time.time() - start_time) < minimum_time_to_access_file:
                     continue
                 else:
-                    #We assume procmon successfuly accesed the files and existed nicely
+                    #We assume the process successfuly accesed the files and existed nicely
                     force_kill(processes_of_interest,"2d") #this is not intended to address e.g., idled processes
                     break
     return True
@@ -236,10 +249,28 @@ def convert_pml_to_csv_and_zip(PML_LOG, CSV_LOG, ZIP_NAME):
         debug_output("Now zipping the file", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
         zip_file = ZipFile(ZIP_NAME, 'w', zipfile.ZIP_DEFLATED)
         zip_file.write(CSV_LOG, arcname=os.path.basename(CSV_LOG))
+        if send_logs_to_remote_server:
+            remote_log_send(ZIP_NAME)
         os.remove(PML_LOG)
         os.remove(CSV_LOG)
+
     except FileNotFoundError as e:
         print("***WARNING. POSSIBLE DATA LOSS", PML_LOG, "not converted to CSV. Corroborated due to previous step?: ", status)
+
+def remote_log_send(ZIP_NAME):
+    destIP_and_folder = remote_server_machine + ":" + remote_server_folder
+    print('sending log file', ZIP_NAME, 'to remote server', destIP_and_folder, "...")
+    send_log_to_remote = subprocess.Popen(['powershell.exe', '-File', 'scp_send_log.ps1', ssh_client_identity_file, ZIP_NAME, destIP_and_folder])      
+    send_log_to_remote.communicate()
+    if not enable_local_storage:
+        #lets first make sure the scp is done sending
+        time.sleep(1) #grace time to make sure the file has been opened by scp 
+        ensure_file_is_longer_being_used([ZIP_NAME], 60)
+        os.remove(ZIP_NAME)
+
+
+
+
 
 def debug_output(*list_to_print):
     if debug_mode:
