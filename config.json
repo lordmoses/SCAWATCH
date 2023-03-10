@@ -2,6 +2,10 @@
 {
    "size_limit" : 50,                
     "check_interval" : 5,           
-    "procmon_location" : "C:/Users/tingwei/Desktop/ProcessMonitor/Procmon.exe",
-    "scada_process" : "ScadaBR.exe"     
+    "procmon_location" : "C:/Users/AVATAR/Desktop/ProcessMonitor/Procmon.exe",
+    "scada_process" : "ScadaBR.exe",
+    "SEND_LOGS_TO_REMOTE_SERVER": 1,
+    "remote_server_machine" : "AVATAR.gatech.edu",
+    "remote_server_folder" : "/home/AVATAR",
+    "ssh_client_identity_file" : "C:/Users/AVATAR/.ssh/id_rsa"
 }

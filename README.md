@@ -13,7 +13,7 @@ SCAWATCH is **python-based** and executed in **Powershell**. Powershell must be 
 2. `cd SCAWATCH`
 3. `pip install -r requirements.txt`
 4. Edit config.json (to suit your Windows environment, see instructions below)
-5. `python3 orchestrate.py`
+5. `python3 scawatch.py`
 6. To end things, press CTRL -C
 
 
