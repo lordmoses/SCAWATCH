@@ -85,7 +85,7 @@ except FileExistsError:
 global user_terminate_action #This is to enable graceful or ungraceful shutdown of the program
 user_terminate_action = 0
 
-debug_mode = False
+debug_mode = data["DEBUG_MODE"]
 
 def check_size(file :str , size_limit : int):
 
@@ -265,8 +265,10 @@ def remote_log_send(ZIP_NAME):
     if not enable_local_storage:
         #lets first make sure the scp is done sending
         time.sleep(1) #grace time to make sure the file has been opened by scp 
+        debug_output("Checking to make sure the ZIP file is no longer open/used by scp", ZIP_NAME)
         ensure_file_is_longer_being_used([ZIP_NAME], 60)
         os.remove(ZIP_NAME)
+        debug_output("Done removing the ZIP file", ZIP_NAME)
 
 
 
@@ -299,10 +301,11 @@ def run(size_limit, check_interval):
         
             if user_terminate_action == 0: #user has not asked to stop e.g., via CTRL C
                 ##Starting the next tracing. We want to start tracing the next instance immediately after the first/current one finishes, i.e. before we start zipping its logs, to minimize missed logs/events
+                procmon_instantiation_counter += 1
                 print("Procmon instance ", procmon_instantiation_counter, " Date-time: ", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
                 current_pml_log, current_csv_log, current_zip_name = setup_and_trace()
                 print("Logging trace in ", current_pml_log, "...")
-                procmon_instantiation_counter += 1
+                
                 
             ## Make sure Procmon is done using the completed pml log
             #print("Ensuring PML is not longer in use", str(datetime.strftime(datetime.now(),"%H-%M-%S-%m-%d-%Y")))
